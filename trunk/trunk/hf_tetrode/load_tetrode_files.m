@@ -108,9 +108,11 @@ for isess=1:nsess
         stimfile = fullfile(pathstr, [fname, '.inp']);
         stimfiles{isess} = stimfile;
     end
+    logtime=NaN;
+    logtime_blank = NaN;
+    orients = NaN;
     try
-        [sync_data(isess).logtime, sync_data(isess).logtime_blank, ...
-            sync_data(isess).orients] = get_sync(stimfile,...
+        [logtime, logtime_blank, orients] = get_sync(stimfile,...
             't_blank', t_blank(isess),'t_delay', t_delay(isess),...
             'verbose', verbose);
     catch ME
@@ -118,6 +120,10 @@ for isess=1:nsess
         out = -1;
         return
     end
+    sync_data(isess).logtime = logtime;
+    sync_data(isess).logtime_blank = logtime_blank;
+    sync_data(isess).orients = orients;
+
 end
 
 %%%%%    Load cut data    %%%%
