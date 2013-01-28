@@ -12,16 +12,9 @@
 % and lie in the same folder as sessionfiles, it's not necessary to specify
 % their location.
 
-% sync_version can be either:
-%     - 'ancient', for really old cases, 
-%     - 'semi-old' for cases where PsychStimController saves t0 and 4
-%       columns in 'logorientation', or
-%     - 'new' if proper synchronization has been performed, reported in
-%       .inp file (not tested as of Jan-03-2013)
-
 clear
 close('all')
-addpath(['..', filesep, 'hf-tetrode'])
+addpath(['..', filesep, 'hf_tetrode'])
 
 % Semi-old version, t0 and blank time recorded
 datapath = ['..', filesep, 'data', filesep, 'kombinerte_filer'];
