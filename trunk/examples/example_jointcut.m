@@ -21,6 +21,7 @@
 
 clear
 close('all')
+addpath(['..', filesep, 'hf-tetrode'])
 
 % Semi-old version, t0 and blank time recorded
 datapath = ['..', filesep, 'data', filesep, 'kombinerte_filer'];
