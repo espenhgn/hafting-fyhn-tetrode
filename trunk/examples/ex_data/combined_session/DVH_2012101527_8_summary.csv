@@ -1,9 +1,0 @@
-Session;/home/enorhe/Work/UiO/el_phys/data/combined_session/DVH_2012101527.8
-Cut;/home/enorhe/Work/UiO/el_phys/data/combined_session/DVH_2012101527_8.cut
-Stim synch;/home/enorhe/Work/UiO/el_phys/data/session_semi-old/StimLog-2709-1752.mat
-
-Cell #;OSI;fOSI;0;45;90;135;180;225;270;315
-1;0,13684;0,061;23;27;22;18;26;25;22;23
-2;0,092063;0,036859;64;65;78;80;82;78;68;86
-3;0,065015;0,023604;211;236;250;214;225;258;203;239
-4;0,2;0,092857;19;14;27;10;17;17;14;9
