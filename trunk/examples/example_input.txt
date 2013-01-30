@@ -1,10 +1,14 @@
+% Sessionfiles have a leading 'session' in front
 session /home/enorhe/Work/UiO/hafting-fyhn-tetrode/trunk/examples/ex_data/kombinerte_filer/DHV_2012060230.1
 session /home/enorhe/Work/UiO/hafting-fyhn-tetrode/trunk/examples/ex_data/kombinerte_filer/DHV_2012060231.1
 session /home/enorhe/Work/UiO/hafting-fyhn-tetrode/trunk/examples/ex_data/kombinerte_filer/DHV_2012060232.1
+% Synchronization files had 'synch' in front
 synch /home/enorhe/Work/UiO/hafting-fyhn-tetrode/trunk/examples/ex_data/session_semi-old/StimLog-2709-1752.mat
 synch /home/enorhe/Work/UiO/hafting-fyhn-tetrode/trunk/examples/ex_data/session_semi-old/StimLog-2709-1752.mat
 synch /home/enorhe/Work/UiO/hafting-fyhn-tetrode/trunk/examples/ex_data/session_semi-old/StimLog-2709-1752.mat
+% Cut files have 'cut in front'
 cut /home/enorhe/Work/UiO/hafting-fyhn-tetrode/trunk/examples/ex_data/kombinerte_filer/DHV_2012060230mfcom_1.cut
+% The following are 
 t_delay [0,0,0]
 t_blank [0,0,0]
 export_csv 1

@@ -10,6 +10,8 @@ clear
 close('all')
 addpath(['..', filesep, 'hf_tetrode'])
 
+% The input_file is a text file containing everything needed for
+% *get_tetrode_data()*
 input_file = 'example_input.txt';
 
 S = input_wrapper(input_file);
