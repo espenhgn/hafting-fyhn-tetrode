@@ -1,5 +1,22 @@
 function out = input_wrapper(input_file)
-%INPUT_WRAPPER    Wraps around get_tetrode_data
+%INPUT_WRAPPER    Wraps around *get_tetrode_data()*
+% S = INPUT_WRAPPER(input_file) calls *get_tetrode_data()* with arguments
+% stated in input_file. The input file is a plain text document in this
+% format:
+%     session <path_to_session_file_#1>
+%     session <path_to_session_file_#2>
+%     synch <path_to_synch_file_#1>
+%     synch <path_to_synch_file_#2>
+%     cut <path_to_cut_file_#1>
+%     cut <path_to_cut_file_#1>
+% 
+% If ALL synch and/or ALL cut files follow standard naming conventions,
+% these files can be omitted. 
+% If all session files have been cut together in one cut file, this cut
+% file only needs to be specified once.
+% In addition other optional arguments to *get_tetrode_data()* can be
+% specified. Write the name and value of the argument separated by a blank
+% space.
 
 sessionfiles = {};
 stimfiles = {};

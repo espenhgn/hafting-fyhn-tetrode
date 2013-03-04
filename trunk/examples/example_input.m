@@ -15,3 +15,10 @@ addpath(['..', filesep, 'hf_tetrode'])
 input_file = 'example_input.txt';
 
 S = input_wrapper(input_file);
+
+% After data is loaded it's time to plot. Specify the session and cell
+% number you want to plot.
+isess = 1;
+icell = 1; % icell = 0 plots all cells for the chosen session
+
+plot_spiketrains(S, isess, 'icell', icell)

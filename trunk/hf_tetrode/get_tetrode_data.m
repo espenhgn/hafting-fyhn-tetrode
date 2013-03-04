@@ -8,7 +8,7 @@ function out = get_tetrode_data(sessionfiles, varargin)
 %
 % The file names can be followed by parameter/value pairs:
 %     'cutfiles' : cell (default {})
-%         array containing paths to cut files when naming
+%         Cell array containing paths to cut files when naming
 %         convention is not followed, or if joint cut file is created. 
 %     'stimfiles' : cell (default {})
 %         Absolute or relative path to stimulus log created by older
@@ -61,7 +61,7 @@ function out = get_tetrode_data(sessionfiles, varargin)
 %         - Functionality for using sync info from .inp files.
 %         - 'stimfile' is a new optional parameter/value pair, instead of a
 %           required argument. If no stimfile is provided, the function
-%           will look for an .inp file containing sync info.
+%           will look for a .inp file containing sync info.
 %
 % See also write_csv
 
@@ -76,9 +76,9 @@ def_tdelay = zeros(size(sessionfiles));
 def_writecsv = false;
 def_csvargs = {};
 
-addRequired(p, 'sessionfiles', @is_cellorchar)
-addParamValue(p, 'cutfiles', def_cutfiles, @is_cellorchar)
-addParamValue(p, 'stimfiles', def_stimfiles, @is_cellorchar)
+addRequired(p, 'sessionfiles', @iscell)
+addParamValue(p, 'cutfiles', def_cutfiles, @iscell)
+addParamValue(p, 'stimfiles', def_stimfiles, @iscell)
 addParamValue(p, 't_delay', def_tdelay, @isnumeric)
 addParamValue(p, 't_blank', def_tblank, @isnumeric)
 addParamValue(p, 'verbose', def_verbose, @is_my_logical)
@@ -239,10 +239,10 @@ if verbose
 end
 
 
-function out = is_cellorchar(n)
+%function out = is_cellorchar(n)
 %ISMYLOGICAL    checks if value is cell or char.
 
-out = 0;
-if iscell(n) || ischar(n)
-    out=1;
-end
+%out = 0;
+%if iscell(n) || ischar(n)
+%    out=1;
+%end
