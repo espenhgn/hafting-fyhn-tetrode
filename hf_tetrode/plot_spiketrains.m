@@ -47,8 +47,8 @@ for ic=icell_start:icell_stop
     m = ceil(sqrt(norient));
 
     figure();
-    max_time = max(max(cell_struct.stim_durations))
-    max_t_blank = mean(mean(cell_struct.blank_durations))
+    max_time = max(max(cell_struct.stim_durations));
+    max_t_blank = mean(mean(cell_struct.blank_durations));
     nspikes_orient = zeros([norient,1]);
 
     for iorient=1:norient

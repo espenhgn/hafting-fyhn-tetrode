@@ -70,6 +70,10 @@ switch ext
         % other parameters like spatial freq, contrast level and so on
         norients = max(all_kv);
         orients = (all_kv(all_kv>0)-1)*360/norients;
+        [m, ~] = size(orients);
+        if m==1
+            orients = orients';
+        end
     case '.mat'
         % Unpack arguments not needed in the case of .inp files
         t_blank = p.Results.t_blank;
@@ -138,7 +142,7 @@ while ientry<=length(ivec)-1
     tmp_idx = ientry;
     val = ivec(ientry);
     nentry = 1;
-    for icheck=ientry:length(ivec)
+    for icheck=ientry+1:length(ivec)
         if ivec(icheck)==val
             nentry = nentry + 1;
         else
