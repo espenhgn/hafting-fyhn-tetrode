@@ -83,6 +83,8 @@ if ~isempty(stimfiles) && length(stimfiles)~=nsess
     error('el_phys:load_tetrode_files:input_error', msg)
 end
 
+stim_internal = stimfiles;
+
 for isess=1:nsess
     %%%%%%%%%    Get spikes    %%%%%%%
     sessionfile = sessionfiles{isess};
@@ -91,8 +93,6 @@ for isess=1:nsess
          tstamps = getspikes(sessionfile);         
     catch ME
         error('el_phys:load_tetrode_files:getspikes_error', ME.message)
-        out = -1;
-        return
     end
     fnames{isess} = fname;
     nspikes = nspikes + length(tstamps);
@@ -106,7 +106,7 @@ for isess=1:nsess
         % Default .inp file has same name as sessionfile and is located in
         % same folder
         stimfile = fullfile(pathstr, [fname, '.inp']);
-        stimfiles{isess} = stimfile;
+        stim_internal{isess} = stimfile;
     end
     try
         [sync_data(isess).logtime, sync_data(isess).logtime_blank, ...
@@ -120,7 +120,7 @@ end
 
 %%%%%    Load cut data    %%%%
 clusts = cell(nsess,1);
-cut_tmp = {};
+cut_internal = cutfiles;
 
 if isempty(cutfiles) || length(cutfiles)==nsess
     for isess=1:nsess
@@ -129,8 +129,8 @@ if isempty(cutfiles) || length(cutfiles)==nsess
         % Use default name if not stated explicitly
         if isempty(cutfiles)
             cutfile = fullfile(pathstr, [fname, '_', ext(2:end), '.cut']);
-            cut_tmp{isess} = cutfile;
-        else
+            cut_internal{isess} = cutfile;
+        else            
             cutfile = cutfiles{isess};
         end
         try
@@ -138,8 +138,6 @@ if isempty(cutfiles) || length(cutfiles)==nsess
         catch ME
             error('el_phys:load_tetrode_files:single_getcut_error', ...
                 ME.message)
-            out = -1;
-            return
         end
         % Check if cut is for this and only this session file. We can't
         % know if the cut is for the right tetrode (except if standard
@@ -165,9 +163,6 @@ if isempty(cutfiles) || length(cutfiles)==nsess
             clusts{isess} = clust;
         end
     end
-    if isempty(cutfiles)
-        cutfiles = cut_tmp;
-    end
 elseif length(cutfiles)==1 && nsess>1
     % This is the case with joint cut file.
     cutfile = cutfiles{1};
@@ -175,8 +170,6 @@ elseif length(cutfiles)==1 && nsess>1
         [joint_clust, cut_for] = getcut(cutfile);
     catch ME
         error('el_phys:load_tetrode_files:joint_getcut_error', ME.message)
-        out = -1;
-        return
     end
     ncut = length(cut_for);
     % Check that number of cuts in cut file is same as number of session
@@ -215,4 +208,4 @@ elseif length(cutfiles)==1 && nsess>1
 end
 
 out = struct('timestamps', {timestamps}, 'sync_data', sync_data,...
-    'clusts', {clusts}, 'cutfiles', {cutfiles}, 'stimfiles', {stimfiles});
+    'clusts', {clusts}, 'cutfiles', {cut_internal}, 'stimfiles', {stim_internal});
