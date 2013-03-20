@@ -86,6 +86,14 @@ switch ext
         %ext = ext(2:end);
         %cutname = [pathstr, filesep, fname, '_', ext, '.cut'];
         
+        % If this is a Windows MATLAB, single backslashes in file names will give
+        % errors
+        if ispc
+            % First replace all single backslashes with double backslashes
+            log_file = strrep(log_file, '\', '\\');            
+            log_file = strrep(log_file, '\\\\', '\\');
+        end
+        
         % Load stimulus log, saved in *S.logorientation* and *t0*
         S = load(log_file);
         raw_logtime = S.logorientation(:,2) * converse;
