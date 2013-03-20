@@ -28,8 +28,8 @@ function out = get_tetrode_data(sessionfiles, varargin)
 %         can be loaded in libreoffice/excel. You can do this afterwards as
 %         well by calling the function write_csv().
 %     'export_args' : cell (default {})
-%         Parameter/Value pairs passed to *write_csv()* (if *export_csv* is set to
-%         true).
+%         Parameter/Value pairs passed to *write_csv()* (if *export_csv* is
+%         set to true).
 %         NOTE: Required arguments for *write_csv()* (*in_struct* and
 %         *ofile*) are created and passed internally, so arguments in
 %         *export_args* should be the parameter/value pairs described in
@@ -93,6 +93,9 @@ t_blank = p.Results.t_blank;
 t_delay = p.Results.t_delay;
 verbose = p.Results.verbose;
 % Done with argument handling
+
+% This is used later for writing csv files
+verbose_in_args = 0;
 
 % Initialize and load files
 out = struct();
@@ -230,7 +233,26 @@ for isess=1:nsess
     if p.Results.export_csv
         [pathstr, fname, ext] = fileparts(sessionfile);
         csv_name = fullfile(pathstr, [fname, '_', ext(2:end), '_summary.csv']);
-        write_csv(out.session(isess), csv_name, p.Results.export_args{:});
+        csv_args = p.Results.export_args;
+        
+        % verbose_in_args = 0 for the first session, so check if 'verbose'
+        % is in the arguments for write_csv. If it is in there, put it
+        % equal to the 'verbose' chosen for get_tetrode_data().
+        if ~verbose_in_args
+            for iarg=1:length(csv_args)
+                if strcmp(csv_args{iarg}, 'verbose')
+                    verbose_in_args=1;
+                    csv_args{iarg+1}=verbose;
+                    break
+                end
+            end
+        end
+        % If 'verbose' in the arguments, set it as an additional argument
+        if ~verbose_in_args
+            csv_args = [csv_args, {'verbose', verbose}]; %#ok
+            verbose_in_args=1;
+        end
+        write_csv(out.session(isess), csv_name, csv_args{:});
     end
 end
 

@@ -114,9 +114,7 @@ for isess=1:nsess
             't_blank', t_blank(isess),'t_delay', t_delay(isess),...
             'verbose', verbose);
     catch ME
-        error('el_phys:load_tetrode_files:get_sync_error', ME.message)
-        out = -1;
-        return
+        error('el_phys:load_tetrode_files:get_sync_error', ME.message)        
     end
 end
 

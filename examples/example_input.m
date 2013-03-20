@@ -7,8 +7,8 @@
 % line for details.
 
 clear 
-close('all')
-addpath(['..', filesep, 'hf_tetrode'])
+%close('all')
+%addpath(['..', filesep, 'hf_tetrode'])
 
 % The input_file is a text file containing everything needed for
 % *get_tetrode_data()*

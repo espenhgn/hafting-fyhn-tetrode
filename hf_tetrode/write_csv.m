@@ -12,7 +12,13 @@ function write_csv(in_struct, ofile, varargin)
 %         Each entry in *ofile* is separated by this string.
 %         libreoffice/excel uses this to separate data into different
 %         cells.
+%     'verbose' : boolean or int (default false)
+%         Toggles messages on/off. false means no messages, true means 
+%         print messages to standard output. Integer values are also
+%         accepted: 0 and negative values means false, positive values
+%         means true.
 %
+
 % Version 0.1 September 2012, Eivind Skjønsberg Norheim
 % Version 0.2 January 2013, ESN:
 %     Changes:
@@ -26,15 +32,19 @@ function write_csv(in_struct, ofile, varargin)
 p = inputParser();
 def_expanded = true;
 def_separator = ';';
+def_verbose = false;
+
 addRequired(p, 'in_struct', @isstruct)
 addRequired(p, 'ofile', @isstr)
 addParamValue(p, 'expanded', def_expanded, @is_my_logical)
 addParamValue(p, 'separator', def_separator, @isstr)
+addParamValue(p, 'verbose', def_verbose, @is_my_logical)
 
 parse(p, in_struct, ofile, varargin{:})
 
 sep = p.Results.separator;
 expanded = p.Results.expanded;
+verbose = p.Results.verbose;
 
 % if no extension add csv as extension
 [pathstr, ~, ext] = fileparts(ofile);
@@ -44,7 +54,11 @@ end
 
 % Check if file *ofile* exists,
 reply = '';
-while exist(ofile, 'file') && ~strcmpi(reply, 'w')  
+while exist(ofile, 'file') && ~strcmpi(reply, 'w')
+    if ispc
+        ofile = strrep(ofile, '\', '\\');
+        ofile = strrep(ofile, '\\\\', '\\');
+    end
     pstr = sprintf(['\nFile %s exists.\nOver[w]rite, [r]ename or [q]uit?',...
         ' w/r/q: '], ofile);    
 %    while isempty(reply)
@@ -88,6 +102,17 @@ for iorient=1:norient
 end
 sline = [sline ,'\n'];
 
+if ispc
+    % First replace all single backslashes with double backslashes
+    in_struct.sessionfile = strrep(in_struct.sessionfile, '\', '\\');
+    in_struct.cutfile = strrep(in_struct.cutfile, '\', '\\');            
+    in_struct.stimfile = strrep(in_struct.stimfile, '\', '\\');            
+    in_struct.sessionfile = strrep(in_struct.sessionfile, '\\\\', '\\');
+    in_struct.cutfile = strrep(in_struct.cutfile, '\\\\', '\\');
+    in_struct.stimfile = strrep(in_struct.stimfile, '\\\\', '\\');    
+end
+        
+
 slines = {['Session', sep, in_struct.sessionfile, '\n'], ...
     ['Cut', sep, in_struct.cutfile, '\n'], ...
     ['Stim synch', sep, in_struct.stimfile, '\n\n'], ...
@@ -123,8 +148,10 @@ for icell=1:length(in_struct.cells)
         fprintf(fid, [sline, '\n'], 'char');
     catch ME
         error('el_phys:write_csv:write_bulk_error', ME.message)
-        return
     end
 end
 
+if verbose
+    fprintf(1, 'Wrote summary to file %s\n\n', ofile);
+end
 fclose(fid);
