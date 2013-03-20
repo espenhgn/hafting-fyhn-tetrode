@@ -24,7 +24,7 @@ vals = reshape(vals,[7,nosamples]);
 ts = zeros(nosamples,1);
 for i = 1:numel(ts)
     if ispc
-        % This was originally withiut the swapbytes() function, but it
+        % This was originally without the swapbytes() function, but it
         % produced wrong results.
         ts(i,1) = swapbytes(typecast(uint8(vals(1:4,i)),'uint32'));
     elseif isunix
