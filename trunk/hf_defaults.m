@@ -9,4 +9,7 @@ if isempty(regexp(path, [hf_path pathsep '|' hf_path '$'], 'once'))
     addpath(hf_path);
 end
 addpath(fullfile(hf_path, 'hf_tetrode'));
-addpath(fullfile(hf_path, 'rf_pack'));
+rf_path = fullfile(hf_path, 'rf_pack');
+if isdir(rf_path)
+    addpath(rf_path);
+end
