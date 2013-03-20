@@ -1,4 +1,4 @@
-function out = input_wrapper(input_file)
+function [out, varargout] = input_wrapper(input_file)
 %INPUT_WRAPPER    Wraps around *get_tetrode_data()*
 % S = INPUT_WRAPPER(input_file) calls *get_tetrode_data()* with arguments
 % stated in input_file. The input file is a plain text document in this
@@ -21,6 +21,9 @@ function out = input_wrapper(input_file)
 sessionfiles = {};
 stimfiles = {};
 cutfiles = {};
+paramfiles = {};
+
+opt_args = {};
 
 ncomment = 0;
 
@@ -47,20 +50,27 @@ while ~feof(fid)
         switch lower(var)
             case 'session'    
                 sessionfiles{end+1} = val; %#ok
-            case 'synch'
+            case {'synch', 'sync'}
                 stimfiles{end+1} = val; %#ok
             case 'cut'
-                cutfiles{end+1} = val; %#ok
+                cutfiles{end+1} = val; %#ok            
             case 't_delay'
-                t_delay = str2num(val); %#ok                
+                t_delay = str2num(val); %#ok 
+                opt_args = [opt_args, {lower(var), str2num(val)}]; %#ok
             case 't_blank'
                 t_blank = str2num(val); %#ok
+                opt_args = [opt_args, {lower(var), str2num(val)}]; %#ok
             case 'export_csv'
-                export_csv = val;
+                eval([var, '=', val, ';']);                
+                opt_args = [opt_args, {'export_csv', export_csv}]; %#ok
             case 'export_args'
                 eval([var, '=', val, ';']);
+                opt_args = [opt_args, {'export_args', export_args}];  %#ok 
             case 'verbose'
                 eval([var, '=', val, ';']);
+                opt_args = [opt_args, {'verbose', verbose}];  %#ok 
+            case {'param', 'params'}
+                paramfiles{end+1} = val; %#ok        
             otherwise
                 msg = ['Input variable %s in input file %s is unknown.',...
                     ' Check spelling!'];
@@ -71,8 +81,13 @@ while ~feof(fid)
 end
 
 fclose(fid);
-args = {'stimfiles', stimfiles, 'cutfiles', cutfiles, ...
-    't_delay', t_delay, 't_blank', t_blank, ...
-    'export_csv', export_csv, 'export_args', export_args, ...
-    'verbose', verbose};
+args = {'stimfiles', stimfiles, 'cutfiles', cutfiles, opt_args{:}};
+
+%, ...
+%    't_delay', t_delay, 't_blank', t_blank, ...
+%    'export_csv', export_csv, 'export_args', export_args, ...
+%    'verbose', verbose};
 out = get_tetrode_data(sessionfiles, args{:});
+if nargout>=2
+    varargout{1} = paramfiles;
+end
