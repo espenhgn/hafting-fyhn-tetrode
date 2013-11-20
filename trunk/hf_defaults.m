@@ -1,7 +1,5 @@
 % This is file hf_defaults. Put in configurations into this file
-%
-%
-%
+
 
 hf_path = fileparts(mfilename('fullpath'));
 hf_path = strrep(hf_path, '\', '\\');
