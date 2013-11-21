@@ -159,7 +159,11 @@ for isess=1:nsess
         spont_time = 0;
         % pick timestamps for the right cell
         cell_timestamps = timestamps(clust==icell);
-
+        cells(icell).allspikes = length(cell_timestamps);
+        sessionlength=max(timestamps);
+        cells(icell).meanrate = length(cell_timestamps)/sessionlength; %torkel
+        cells(icell).spont_spikes=0;
+        
         for itimeint=1:length(logtime)
             % pick start and end times from *logtime* and *logtime_blank*.
             % *logtime_blank* has one more entry than logtime to ensure
@@ -199,10 +203,18 @@ for isess=1:nsess
             nspikes(iorient) = nspikes(iorient) + length(spike_train);        
         end
         
+        cells(icell).spont_spikes = spont_spikes;
         cells(icell).spont_rate = spont_spikes/spont_time;
         cells(icell).nspikes = nspikes;
-        cells(icell).evoked_rate = mean(mean(cells(icell).spike_rates));
+        cells(icell).evoked_rate = mean(mean(cells(icell).spike_rates)); 
+        cells(icell).orient_rates=mean(cells(icell).spike_rates, 2)
         [cells(icell).OSI, cells(icell).fOSI] = calc_OSI(nspikes);
+%       Torkel: evoked rates does not take into account orientations without any responses.
+%       finding mean rate for stimulus-evoked responses, only for the directions that elicit responses
+%         stimrates=cells(icell).spike_rates;
+%         stimrateind=find(stimrates>0);
+%         stimrates=stimrates(stimrateind);
+%         cells(icell).evoked_rate = mean(stimrates);
     end
     % Update out structure with the last cells struct
     % ***Redundant save values, update plot_spiketrains.m to accept a new
@@ -252,7 +264,7 @@ for isess=1:nsess
             csv_args = [csv_args, {'verbose', verbose}]; %#ok
             verbose_in_args=1;
         end
-        write_csv(out.session(isess), csv_name, csv_args{:});
+        write_csv_expanded(out.session(isess), csv_name, csv_args{:});
     end
 end
 
