@@ -1,4 +1,5 @@
-function plot_spiketrains(in_struct, isession, varargin)
+function plot_spiketrains(in_struct, isession, saveplot, varargin)
+
 %PLOT_SPIKETRAINS   Plot spiketrains contained in struct
 % PLOT_SPIKETRAINS(S, isession) plots spike trains for all orientations for all cells
 % contained in *S.session(isession)*. *S* is a struct obtained from
@@ -13,6 +14,7 @@ function plot_spiketrains(in_struct, isession, varargin)
 %
 % Version 0.1, September 2012, Eivind Skjønsberg Norheim
 % Version 0.2, Jan 2013, ESN, no changes
+% Version 0.3, Sept 2013, Torkel Hafting: saving plot files as jpg
 %
 % See also receptive_fields.
 
@@ -46,7 +48,7 @@ for ic=icell_start:icell_stop
     [norient, ntrains] = size(cell_struct.spike_trains);
     m = ceil(sqrt(norient));
 
-    figure();
+    figure(1);
     max_time = max(max(cell_struct.stim_durations));
     max_t_blank = mean(mean(cell_struct.blank_durations));
     nspikes_orient = zeros([norient,1]);
@@ -88,21 +90,42 @@ for ic=icell_start:icell_stop
     ha = axes('Position', [0 0 1 1], 'Xlim', [0 1], 'Ylim', [0 1], ...
         'Box', 'off', 'Visible', 'off', 'Units', 'normalized',...
         'clipping', 'off'); %#ok
-    titlestr = sprintf('Session # %g: Raster for cell # %g', isession, ic);
+    titlestr = sprintf('%s\n cell # %g', session.sessionfile,ic);
     text(0.5, 1, titlestr, 'HorizontalAlignment',...
         'center','VerticalAlignment', 'top');
     % Making orientation tuning plot
     spike_rates = mean(cell_struct.spike_rates, 2);
+    if saveplot==1
+        ind=find(session.sessionfile=='\');
+        figpath=sprintf('%s%s',session.sessionfile(1:ind(end)),'OSIfigs\');
+        % Create directory if it doesn't exist and open file for writing
+        if ~exist(figpath, 'dir')
+            fprintf(1, 'Directory %s does not exist. Creating directory\n', figpath);
+            mkdir(figpath);
+        end
+        % creating filename
+        itetrode=session.sessionfile(end);
+        if saveplot==1;
+            figfile=sprintf(['%s%s-t%sc%g%s'], figpath, session.sessionfile(ind(end)+1:end-2), itetrode, ic,'.jpg');
+            saveas(gcf,figfile,'bmp');
+        end
+    end
 
-    figure();
-    plot(session.orientations, spike_rates, 'k-o') % edit
+    figure(2);
+    plot(session.orientations, spike_rates, 'k-o','LineWidth',2) % edit
     axis([0, session.orientations(end), 0, 1.1*max(spike_rates)]) % edit
     xlabel('direction (degrees)');
     ylabel('spikerate (s^{-1})');
-    titlestr = sprintf(['Session # %g: Orientation tuning curve,',...
-        ' cell # %g, OSI = %.3f'],...
-        isession, ic, cell_struct.OSI);
+%     titlestr = sprintf(['Session # %g: Orientation tuning curve,',...
+%         ' cell # %g, OSI = %.3f'],...
+%         isession, ic, cell_struct.OSI);
+     titlestr = sprintf(['%s\n  t%sc%g, OSI = %.3f'],...
+        session.sessionfile, itetrode,ic, cell_struct.OSI);
     title(titlestr)
+    set(gca,'XTickLabel',session.orientations);
+    if saveplot==1;
+        saveas(gcf,figfile,'jpg');
+    end
 end
 
 function out = isPosInt(n) %#ok
