@@ -27,7 +27,8 @@ addRequired(p, 'isession', @isnumeric)
 addParamValue(p, 'icell', def_icell, @isnumeric)
 
 
-parse(p, in_struct, isession, varargin{:})
+%parse(p, in_struct, isession, varargin{:})
+parse(p, in_struct, isession)
 
 icell = p.Results.icell;
 
@@ -95,6 +96,7 @@ for ic=icell_start:icell_stop
         'center','VerticalAlignment', 'top');
     % Making orientation tuning plot
     spike_rates = mean(cell_struct.spike_rates, 2);
+    itetrode=session.sessionfile(end);
     if saveplot==1
         ind=find(session.sessionfile=='\');
         figpath=sprintf('%s%s',session.sessionfile(1:ind(end)),'OSIfigs\');
@@ -104,7 +106,7 @@ for ic=icell_start:icell_stop
             mkdir(figpath);
         end
         % creating filename
-        itetrode=session.sessionfile(end);
+        %%%%itetrode=session.sessionfile(end);
         if saveplot==1;
             figfile=sprintf(['%s%s-t%sc%g%s'], figpath, session.sessionfile(ind(end)+1:end-2), itetrode, ic,'.jpg');
             saveas(gcf,figfile,'bmp');
@@ -120,7 +122,7 @@ for ic=icell_start:icell_stop
 %         ' cell # %g, OSI = %.3f'],...
 %         isession, ic, cell_struct.OSI);
      titlestr = sprintf(['%s\n  t%sc%g, OSI = %.3f'],...
-        session.sessionfile, itetrode,ic, cell_struct.OSI);
+        session.sessionfile, itetrode, ic, cell_struct.OSI);
     title(titlestr)
     set(gca,'XTickLabel',session.orientations);
     if saveplot==1;
