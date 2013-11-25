@@ -115,7 +115,9 @@ for ic=icell_start:icell_stop
 
     figure(2);
     plot(session.orientations, spike_rates, 'k-o','LineWidth',2) % edit
-    axis([0, session.orientations(end), 0, 1.1*max(spike_rates)]) % edit
+    if max(spike_rates) > 0
+        axis([0, session.orientations(end), 0, 1.1*max(spike_rates)]) % edit
+    end
     xlabel('direction (degrees)');
     ylabel('spikerate (s^{-1})');
 %     titlestr = sprintf(['Session # %g: Orientation tuning curve,',...
