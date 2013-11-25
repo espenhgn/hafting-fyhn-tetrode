@@ -144,21 +144,25 @@ function idxs = double_entries(ivec)
 % ovec = DOUBLE_ENTRIES(ivec) returns indices where ivec has at least
 % two trailing entries with the same value.
 
+
 idxs = [];
 ientry = 1;
-while ientry<=length(ivec)-1
+while ientry <= length(ivec)
     tmp_idx = ientry;
     val = ivec(ientry);
     nentry = 1;
-    for icheck=ientry+1:length(ivec)
-        if ivec(icheck)==val
+    for icheck = ientry + 1:length(ivec)
+        if ivec(icheck) == val
             nentry = nentry + 1;
         else
-            ientry=icheck;
+            ientry = icheck;
             break
         end
     end
     if nentry>1
         idxs = [idxs, tmp_idx];
+    end
+    if tmp_idx+nentry > length(ivec)
+        break
     end
 end
