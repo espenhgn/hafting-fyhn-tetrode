@@ -49,7 +49,7 @@ for ic=icell_start:icell_stop
     [norient, ntrains] = size(cell_struct.spike_trains);
     m = ceil(sqrt(norient));
 
-    figure(1);
+    figure();
     max_time = max(max(cell_struct.stim_durations));
     max_t_blank = mean(mean(cell_struct.blank_durations));
     nspikes_orient = zeros([norient,1]);
@@ -113,7 +113,7 @@ for ic=icell_start:icell_stop
         end
     end
 
-    figure(2);
+    figure();
     plot(session.orientations, spike_rates, 'k-o','LineWidth',2) % edit
     if max(spike_rates) > 0
         axis([0, session.orientations(end), 0, 1.1*max(spike_rates)]) % edit
