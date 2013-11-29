@@ -33,21 +33,26 @@ function [trackball] = get_trackball(setfile, DPI, diameter, dt)
 %          ipY1: [1x41101 double]       interpolated y-position mouse 1 (m)
 %          ipX2: [1x41101 double]       interpolated x-position mouse 2 (m)
 %          ipY2: [1x41101 double]       interpolated y-position mouse 2 (m)
+%        omegaZ: [1x41101 double]       angular position top-down axis (rad)
 %         dXdt1: [1x41100 double]       tangential x-velocity mouse 1 (m/s) 
 %         dYdt1: [1x41100 double]       tangential y-velocity mouse 1 (m/s)
 %         dXdt2: [1x41100 double]       tangential x-velocity mouse 2 (m/s)
 %         dYdt2: [1x41100 double]       tangential y-velocity mouse 2 (m/s)
-%        omegaZ: [1x41101 double]       angular position top-down axis (rad)
 %     domegaZdt: [1x41100 double]       angular velocity (rad/s)
+%         speed: [1x41100 double]       scalar speed from tang. components
 %
-%TODO: filtering of position data, though they seem quite clean already
+%TODO: 
+%   filtering of position data, though they seem quite clean already
+%   confirm which axis is forward, sideways, top-down rotation
+%   confirm which USB mouse 1 is on back, 2 on side of trackball
 
-%get date of trial from setfile:
+%% get date of trial from setfile:
 trial_date = strsplit(setfile.trial_date, ', ');
 trial_date = strjoin(strsplit(trial_date{end}), '-');
 trial_date = datestr(datenum(trial_date), 'yyyymmdd');
 
-%assess corresponding trackball file:
+
+%% assess corresponding trackball file:
 %we now that trackball must start at or before the timestamp of .set-file
 %so we try and open file created same minute
 trackballfile = ['trackball_', trial_date, '_', ...
@@ -69,13 +74,15 @@ if fid == -1
     end
 end
 %with some luck, trackballfile should now be the one corresponding to .set
+trackballfile = GetFullPath(trackballfile);
 
-%container for trackball data, set some fields
+%% container for trackball data, set some fields
 trackball = {};
 trackball.filename = trackballfile;
 [trackball.ID, trackball.DYTime, trackball.DYTime1, ...
     trackball.DX, trackball.DY] = import_trackball(trackballfile);
 
+%% USB mouse 
 %Logitech spec sheet say optical resolution is up to 3600 DPI,
 %but hardware adjustable, Christina think it was set to 800 DPI. 
 %Logitech software however, say as low as 200 is possible (software
@@ -87,7 +94,7 @@ trackball.diameter = diameter; %m, measured ball diameter
 %dt for regularly spaced, resampled positions and velocity components 
 trackball.dt = dt;
 
-
+%% find valid time stamps
 %separate timestamps and coords for each out of two computer mice
 %this only need to be semi accurate, as setfile is only reporting times 
 %to the nearest second. We will use first occurrence of the same sec.
@@ -97,12 +104,12 @@ startt = datestr(setfile.trial_time, 'HH:MM:SS');
 endt = datestr(double(datenum(setfile.trial_time, 'HH:MM:SS')) ...
     + double(datenum(num2str(setfile.duration), 'SS')), 'HH:MM:SS');
 
-%find indices that span recording duration:
+%% find indices that span recording duration:
 startt_ind = find(datenum(HHMMSS) == datenum(startt), 1, 'first');
 endt_ind = find(datenum(HHMMSS) == datenum(endt), 1, 'last');
 inds = startt_ind*skipfac:endt_ind*skipfac;
 
-%discard nonneeded trackball datas
+%% discard nonneeded trackball datas
 trackball.ID = trackball.ID(inds);
 trackball.DYTime = trackball.DYTime(inds);
 trackball.DYTime1 = trackball.DYTime1(inds);
@@ -117,12 +124,12 @@ first_tstamp = datenum(trackball.DYTime(1));
 inds1 = trackball.ID == 1;
 inds2 = trackball.ID == 2;
 
-%corresponding timestamps, convert to unit of seconds
+%% corresponding timestamps, convert to unit of seconds
 trackball.T1 = (datenum(trackball.DYTime(inds1)) - first_tstamp)*24*60*60;
 trackball.T2 = (datenum(trackball.DYTime(inds2)) - first_tstamp)*24*60*60;
 
-
-%position is cumsum of change in each direction
+%% position data
+% position is cumsum of change in each direction
 trackball.X1 = cumsum(trackball.DX(inds1));
 trackball.Y1 = cumsum(trackball.DY(inds1));
 trackball.X2 = cumsum(trackball.DX(inds2));
@@ -138,7 +145,7 @@ trackball.Y2 = trackball.Y2 - trackball.Y2(1);
 badtinds1 = find(diff(trackball.T1) == 0);
 badtinds2 = find(diff(trackball.T2) == 0);
 
-%correct for bad time inds
+%% correct for bad time inds
 trackball.T1(badtinds1) = [];
 trackball.T2(badtinds2) = [];
 trackball.X1(badtinds1) = [];
@@ -146,14 +153,13 @@ trackball.Y1(badtinds1) = [];
 trackball.X2(badtinds2) = [];
 trackball.Y2(badtinds2) = [];
 
-%convert to units of m, so we can compute velocity and rotation around
-%z-axis (top-down)
+%% convert to units of m, compute velocity and z-axis rotation (top-down)
 trackball.X1 = trackball.X1 / trackball.DPm;
 trackball.Y1 = trackball.Y1 / trackball.DPm;
 trackball.X2 = trackball.X2 / trackball.DPm;
 trackball.Y2 = trackball.Y2 / trackball.DPm;
 
-%resample signals to timeres dt s.
+%% resample signals to timeres dt s.
 trackball.time = 0:trackball.dt:setfile.duration;
 trackball.ipX1 = ...
     interp1(trackball.T1, trackball.X1, trackball.time, 'linear');
@@ -164,16 +170,16 @@ trackball.ipX2 = ...
 trackball.ipY2 = ...
     interp1(trackball.T2, trackball.Y2, trackball.time, 'linear');
 
-%compute the velocity vector components
+%% compute the velocity vector components
 trackball.dXdt1 = diff(trackball.ipX1) / trackball.dt;
 trackball.dYdt1 = diff(trackball.ipY1) / trackball.dt;
 trackball.dXdt2 = diff(trackball.ipX2) / trackball.dt;
 trackball.dYdt2 = diff(trackball.ipY2) / trackball.dt;
 
-%angular position around top-down axis, from the mean of the Y-components
+%% angular position around top-down axis, from the mean of the Y-components
 trackball.omegaZ = (trackball.ipY1 + trackball.ipY2) / 2 ...
     * 1. / (pi*trackball.diameter);
 trackball.domegaZdt = diff(trackball.omegaZ) / trackball.dt;
 
-%compute the scalar speed
+%% compute the scalar speed
 trackball.speed = sqrt(trackball.dXdt2.^2 + trackball.dXdt1.^2);
