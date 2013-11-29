@@ -31,6 +31,7 @@ end
 formatSpec = '%f%s%s%f%f%[^\n\r]';
 
 %% Open the text file.
+fprintf(1,['reading trackball file ', filename, '\n']);
 fileID = fopen(filename,'r');
 
 %% Read columns of data according to format string.

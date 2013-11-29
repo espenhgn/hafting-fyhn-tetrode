@@ -10,6 +10,7 @@ function [setfile] = import_setfile(filename)
 %   [setfile] = import_setfile('path/to/file.set');
 %   setfile.trial_time
 
+fprintf(1, ['reading setfile ', filename, '\n']);
 fileID = fopen(filename, 'r');
 
 if fileID == -1
@@ -21,6 +22,8 @@ end
 dataArray = textscan(fileID, '%s', 'Delimiter', '');
 
 setfile = {};
+
+setfile.filename = filename;
 
 for ii = 1:length(dataArray{1})
     x = strsplit(dataArray{1}{ii});
