@@ -81,7 +81,6 @@ trackballfile = GetFullPath(trackballfile);
 %% container for trackball data, set some fields
 trackball = {};
 trackball.filename = trackballfile;
-trackball.rotation = rotation
 [trackball.ID, trackball.DYTime, trackball.DYTime1, ...
     trackball.DX, trackball.DY] = import_trackball(trackballfile);
 
@@ -90,8 +89,9 @@ trackball.rotation = rotation
 %but hardware adjustable, Christina think it was set to 800 DPI. 
 %Logitech software however, say as low as 200 is possible (software
 %tricks?)
-trackball.DPI = DPI; %3600
-trackball.DPm = trackball.DPI / 2.54 * 100;
+trackball.DPI = DPI;
+trackball.DPm = trackball.DPI / 2.54 * 100; %dots per meter
+trackball.rotation = rotation; %radians, 
 trackball.diameter = diameter; %m, measured ball diameter
 
 %dt for regularly spaced, resampled positions and velocity components 
@@ -181,9 +181,9 @@ trackball.dYdt2 = diff(trackball.ipY2) / trackball.dt;
 
 %% trackball may be set up at an angle
 trackball.Vx = trackball.dXdt2*cos(trackball.rotation) + ...
-    trackball.dYdt1*sin(trackball.rotation)
+               trackball.dYdt1*sin(trackball.rotation);
 trackball.Vy = trackball.dXdt1*cos(trackball.rotation) + ...
-    trackball.dYdt2*sin(trackball.rotation)
+               trackball.dYdt2*sin(trackball.rotation);
 
 %% angular position around top-down axis, from the mean of the Y-components
 trackball.omegaZ = (trackball.ipY1 + trackball.ipY2) / 2 ...
