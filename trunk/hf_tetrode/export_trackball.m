@@ -34,8 +34,8 @@ for ii = 1:length(speeds)
     tinds = (trackball.time(1:end-1) >= tstart) & ...
             (trackball.time(1:end-1) <= tend);
     speeds(ii) = mean(trackball.speed(tinds));
-    Vx(ii) = mean(trackball.dXdt2(tinds));
-    Vy(ii) = mean(trackball.dXdt1(tinds));
+    Vx(ii) = mean(trackball.Vx(tinds));
+    Vy(ii) = mean(trackball.Vy(tinds));
     dWZdt(ii) = mean(trackball.domegaZdt(tinds));
 end
 
