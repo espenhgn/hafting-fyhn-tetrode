@@ -1,4 +1,4 @@
-function [trackball] = get_trackball(setfile, DPI, diameter, dt)
+function [trackball] = get_trackball(setfile, DPI, rotation, diameter, dt)
 %GET_TRACKBALL Assess and read trackball file corresponding to axona
 %setfile, by matching timestamps
 %
@@ -39,6 +39,8 @@ function [trackball] = get_trackball(setfile, DPI, diameter, dt)
 %         dXdt2: [1x41100 double]       tangential x-velocity mouse 2 (m/s)
 %         dYdt2: [1x41100 double]       tangential y-velocity mouse 2 (m/s)
 %     domegaZdt: [1x41100 double]       angular velocity (rad/s)
+%            Vx: [1x41100 double]       tangential x-velocity on top (m/s) 
+%            Vy: [1x41100 double]       tangential y-velocity on top (m/s)
 %         speed: [1x41100 double]       scalar speed from tang. components
 %
 %TODO: 
@@ -79,6 +81,7 @@ trackballfile = GetFullPath(trackballfile);
 %% container for trackball data, set some fields
 trackball = {};
 trackball.filename = trackballfile;
+trackball.rotation = rotation
 [trackball.ID, trackball.DYTime, trackball.DYTime1, ...
     trackball.DX, trackball.DY] = import_trackball(trackballfile);
 
@@ -170,11 +173,17 @@ trackball.ipX2 = ...
 trackball.ipY2 = ...
     interp1(trackball.T2, trackball.Y2, trackball.time, 'linear');
 
-%% compute the velocity vector components
+%% compute the velocity vector components in mouse locations
 trackball.dXdt1 = diff(trackball.ipX1) / trackball.dt;
 trackball.dYdt1 = diff(trackball.ipY1) / trackball.dt;
 trackball.dXdt2 = diff(trackball.ipX2) / trackball.dt;
 trackball.dYdt2 = diff(trackball.ipY2) / trackball.dt;
+
+%% trackball may be set up at an angle
+trackball.Vx = trackball.dXdt2*cos(trackball.rotation) + ...
+    trackball.dYdt1*sin(trackball.rotation)
+trackball.Vy = trackball.dXdt1*cos(trackball.rotation) + ...
+    trackball.dYdt2*sin(trackball.rotation)
 
 %% angular position around top-down axis, from the mean of the Y-components
 trackball.omegaZ = (trackball.ipY1 + trackball.ipY2) / 2 ...
@@ -182,4 +191,4 @@ trackball.omegaZ = (trackball.ipY1 + trackball.ipY2) / 2 ...
 trackball.domegaZdt = diff(trackball.omegaZ) / trackball.dt;
 
 %% compute the scalar speed
-trackball.speed = sqrt(trackball.dXdt2.^2 + trackball.dXdt1.^2);
+trackball.speed = sqrt(trackball.Vx.^2 + trackball.Vy.^2);
