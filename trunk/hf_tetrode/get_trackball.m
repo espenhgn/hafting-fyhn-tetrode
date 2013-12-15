@@ -1,4 +1,4 @@
-function [trackball] = get_trackball(setfile, DPI, rotation, diameter, dt)
+function [trackball] = get_trackball(setfile, DPI, rotation, diameter, dt, flipUSB)
 %GET_TRACKBALL Assess and read trackball file corresponding to axona
 %setfile, by matching timestamps
 %
@@ -9,6 +9,7 @@ function [trackball] = get_trackball(setfile, DPI, rotation, diameter, dt)
 %   DPI = 800, DPI setting of trackball mice
 %   diameter = 0.198, (m) diameter of trackball
 %   dt = 0.01, (s) rate for resampling to regular grid of position data
+%   flipUSB = False, (bool), if True, set USB mouse 1 as 2, and opposite
 %
 %output structure:
 % trackball = 
@@ -173,18 +174,24 @@ trackball.ipX2 = ...
 trackball.ipY2 = ...
     interp1(trackball.T2, trackball.Y2, trackball.time, 'linear');
 
-%% compute the velocity vector components in mouse locations
+%% compute the velocity vector components in mouse locations, interp. data
 trackball.dXdt1 = diff(trackball.ipX1) / trackball.dt;
 trackball.dYdt1 = diff(trackball.ipY1) / trackball.dt;
 trackball.dXdt2 = diff(trackball.ipX2) / trackball.dt;
 trackball.dYdt2 = diff(trackball.ipY2) / trackball.dt;
 
-%% trackball may be set up at an angle
-trackball.Vx = trackball.dXdt2*cos(trackball.rotation) + ...
-               trackball.dYdt1*sin(trackball.rotation);
-trackball.Vy = trackball.dXdt1*cos(trackball.rotation) + ...
-               trackball.dYdt2*sin(trackball.rotation);
-
+%% trackball may be set up at an angle, and USB flipped (rat ball)
+if flipUSB == 0
+    trackball.Vx = (trackball.dXdt2*cos(trackball.rotation) + ...
+                   trackball.dXdt1*sin(trackball.rotation));
+    trackball.Vy = - (trackball.dXdt1*cos(trackball.rotation) - ...
+                   trackball.dXdt2*sin(trackball.rotation));
+else
+    trackball.Vx = -(trackball.dXdt1*cos(trackball.rotation) + ...
+                   trackball.dXdt2*sin(trackball.rotation));
+    trackball.Vy = - (trackball.dXdt2*cos(trackball.rotation) - ...
+                   trackball.dXdt1*sin(trackball.rotation));
+end
 %% angular position around top-down axis, from the mean of the Y-components
 trackball.omegaZ = (trackball.ipY1 + trackball.ipY2) / 2 ...
     * 1. / (pi*trackball.diameter);
